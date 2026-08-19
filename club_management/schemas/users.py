@@ -5,8 +5,7 @@ from datetime import datetime
 class UserBase(BaseModel):
     email           : str
     full_name       : str
-    role            : str
-    is_active       : bool
+
 
 class UserCreate(UserBase):
     password        : str
@@ -21,5 +20,15 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     user_id         : int
     created_at      : datetime
+    role            : str
+    is_active       : bool
 
     model_config = ConfigDict(from_attributes= True)
+
+class UserLogin(BaseModel):
+    email           : str
+    password        : str
+
+class TokenResponse(BaseModel):
+    access_token    : str
+    token_type      : str = "bearer"
