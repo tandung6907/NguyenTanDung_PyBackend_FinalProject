@@ -2,7 +2,7 @@ from database.database import SessionLocal
 from models.users import UserModel
 from models.club_activities import ClubActivityModel
 from models.clubs import ClubModel
-from untils.security import hash_password
+from utils.security import hash_password
 
 
 def seed_users(db):
