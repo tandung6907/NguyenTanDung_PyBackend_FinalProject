@@ -1,5 +1,6 @@
 from database.database import Base
 from sqlalchemy import Column, Enum, Integer, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 class ClubMemberModel(Base):
@@ -9,3 +10,6 @@ class ClubMemberModel(Base):
     user_id         = Column(Integer, ForeignKey("users.user_id"), primary_key= True)
     role            = Column(Enum("OWNER", "MEMBER"), nullable= False)
     joined_at       = Column(DateTime, default= datetime.now, nullable= False)
+
+    club    = relationship("ClubModel", back_populates= "members")
+    user    = relationship("UserModel", back_populates= "club_memberships")

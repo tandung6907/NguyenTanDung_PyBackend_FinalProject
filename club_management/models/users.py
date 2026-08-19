@@ -1,5 +1,6 @@
 from database.database import Base
 from sqlalchemy import Column, String, Integer, Boolean, Enum, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
 class UserModel(Base):
@@ -12,3 +13,7 @@ class UserModel(Base):
     role            = Column(Enum("USER", "ADMIN"), default= "USER", nullable= False)
     is_active       = Column(Boolean, default= True, nullable= False)
     created_at      = Column(DateTime, default= datetime.now, nullable= False)
+
+    owned_clubs         = relationship("ClubModel", back_populates= "owner")
+    club_memberships    = relationship("ClubMemberModel", back_populates= "user")
+    assigned_activities = relationship("ClubActivityModel", back_populates= "assignee")
