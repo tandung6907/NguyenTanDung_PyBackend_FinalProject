@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from database.database import get_db
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from exceptions.custom import ServiceUnavailableException
 
 health_router = APIRouter(
     prefix= "/health",
@@ -19,8 +20,7 @@ def health_check_api(db: Session = Depends(get_db)):
         }
 
     except Exception:
-        return {
-            "status"    : "error",
-            "database"  : "disconnected"
-        }
+        raise ServiceUnavailableException(
+            "Database is unavailable"
+        )
 

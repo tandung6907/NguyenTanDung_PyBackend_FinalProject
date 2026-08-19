@@ -8,9 +8,9 @@ class ClubCreate(BaseModel):
     owner_id        : int
 
 class ClubUpdate(BaseModel):
-    name            : str
+    name            : Optional[str] = None
     description     : Optional[str] = None
-    owner_id        : int
+    owner_id        : Optional[int] = None
 
 class ClubResponse(BaseModel):
     club_id         : int

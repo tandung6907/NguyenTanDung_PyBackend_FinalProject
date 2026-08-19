@@ -44,3 +44,19 @@ class ConflictException(AppException):
             message=message,
             error_code="CONFLICT"
         )
+
+class ForbiddenException(AppException):
+    def __init__(self, message: str = "Forbidden"):
+        super().__init__(
+            status_code=403,
+            message=message,
+            error_code="FORBIDDEN"
+        )
+
+class ServiceUnavailableException(AppException):
+    def __init__(self, message: str = "Service unavailable"):
+        super().__init__(
+            status_code=503,
+            message=message,
+            error_code="SERVICE_UNAVAILABLE"
+        )

@@ -7,4 +7,4 @@ email-validator
 passlib[bcrypt]
 bcrypt
 PyJWT
-load-dotenv
+python-dotenv

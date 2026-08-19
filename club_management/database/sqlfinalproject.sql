@@ -1,1 +1,1 @@
-create database club_api;
+create database if not exists club_api;
