@@ -45,13 +45,19 @@ def get_current_user(
 
     return user
     
-def require_admin(
-    current_user: UserModel = Depends(get_current_user)
-):
-    if current_user.role != "ADMIN":
-        raise ForbiddenException(
-            "Admin permission required"
-        )
+def require_role(*allowed_roles: str):
+    def role_checker(
+        current_user: UserModel = Depends(get_current_user)
+    ):
+        if current_user.role not in allowed_roles:
+            raise ForbiddenException(
+                "You do not have permission to access this resource"
+            )
 
-    return current_user
+        return current_user
+
+    return role_checker
+
+require_admin = require_role("ADMIN")
+require_user = require_role("USER", "ADMIN")
 

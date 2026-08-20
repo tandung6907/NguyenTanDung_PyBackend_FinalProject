@@ -60,3 +60,11 @@ class ServiceUnavailableException(AppException):
             message=message,
             error_code="SERVICE_UNAVAILABLE"
         )
+
+class TooManyRequestsException(AppException):
+    def __init__(self, message: str = "Too many requests"):
+        super().__init__(
+            status_code=429,
+            message=message,
+            error_code="TOO_MANY_REQUESTS"
+        )
