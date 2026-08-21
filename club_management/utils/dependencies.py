@@ -11,7 +11,10 @@ from exceptions.custom import (
 
 
 def get_current_user(
-    authorization: str | None = Header(default=None),
+    authorization: str | None = Header(
+        default=None,
+        alias="Authorization"
+    ),
     db: Session = Depends(get_db)
 ):
     if not authorization:

@@ -1,22 +1,46 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 
-class ClubBase(BaseModel):
-    name            : str
-    description     : Optional[str] = None
-    owner_id        : int
 
-class ClubCreate(ClubBase):
-    pass
+class ClubCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = None
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value):
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Club name cannot be empty")
+
+        return value
+
 
 class ClubUpdate(BaseModel):
-    name            : Optional[str] = None
-    description     : Optional[str] = None
-    owner_id        : Optional[int] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=255)
+    description: Optional[str] = None
 
-class ClubResponse(ClubBase):
-    club_id         : int
-    created_at      : datetime
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value):
+        if value is None:
+            return value
 
-    model_config = ConfigDict(from_attributes= True)
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Club name cannot be empty")
+
+        return value
+
+
+class ClubResponse(BaseModel):
+    club_id: int
+    name: str
+    description: Optional[str] = None
+    owner_id: int
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
