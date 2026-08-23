@@ -17,3 +17,4 @@ class UserModel(Base):
     owned_clubs         = relationship("ClubModel", back_populates= "owner")
     club_memberships    = relationship("ClubMemberModel", back_populates= "user")
     assigned_activities = relationship("ClubActivityModel", back_populates= "assignee")
+    club_logs           = relationship("ClubLogModel", back_populates= "actor")

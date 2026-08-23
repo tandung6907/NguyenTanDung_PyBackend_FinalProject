@@ -44,3 +44,11 @@ class ClubResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ClubWithRoleResponse(ClubResponse):
+    role: str
+
+
+class AddMemberRequest(BaseModel):
+    user_id: int = Field(..., gt=0)

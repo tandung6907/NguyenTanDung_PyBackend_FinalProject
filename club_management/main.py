@@ -5,6 +5,7 @@ from database.database import Base, engine
 
 from models.club_activities import ClubActivityModel
 from models.club_members import ClubMemberModel
+from models.club_logs import ClubLogModel
 from models.clubs import ClubModel
 from models.users import UserModel
 
