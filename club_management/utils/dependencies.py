@@ -11,7 +11,7 @@ from exceptions.custom import (
 
 
 def get_current_user(
-    authorization: str | None = Header(
+    authorization: str = Header(
         default=None,
         alias="Authorization"
     ),
