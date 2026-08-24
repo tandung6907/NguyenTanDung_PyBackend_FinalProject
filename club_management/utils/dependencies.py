@@ -44,7 +44,7 @@ def get_current_user(
             detail="Invalid token"
         )
 
-    user_id = payload.get("sub")
+    user_id = payload.get("user_id")
     if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -59,7 +59,7 @@ def get_current_user(
             detail="Invalid subject"
         )
 
-    user = db.query(UserModel).filter(UserModel.id == user_id).first()
+    user = db.query(UserModel).filter(UserModel.user_id == user_id).first()
 
     if user is None:
         raise HTTPException(
