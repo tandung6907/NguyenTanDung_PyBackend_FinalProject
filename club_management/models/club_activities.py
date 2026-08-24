@@ -18,3 +18,5 @@ class ClubActivityModel(Base):
 
     club        = relationship("ClubModel", back_populates= "activities")
     assignee    = relationship("UserModel", back_populates= "assigned_activities")
+    comments    = relationship("ClubActivityCommentModel", back_populates= "activity", cascade= "all, delete-orphan")
+    attachments = relationship("ClubActivityAttachmentModel", back_populates= "activity", cascade= "all, delete-orphan")

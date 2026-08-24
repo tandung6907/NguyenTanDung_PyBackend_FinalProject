@@ -68,3 +68,19 @@ class TooManyRequestsException(AppException):
             message=message,
             error_code="TOO_MANY_REQUESTS"
         )
+
+class UnsupportedMediaTypeException(AppException):
+    def __init__(self, message: str = "Unsupported file type"):
+        super().__init__(
+            status_code=415,
+            message=message,
+            error_code="UNSUPPORTED_MEDIA_TYPE"
+        )
+
+class PayloadTooLargeException(AppException):
+    def __init__(self, message: str = "File too large"):
+        super().__init__(
+            status_code=413,
+            message=message,
+            error_code="PAYLOAD_TOO_LARGE"
+        )

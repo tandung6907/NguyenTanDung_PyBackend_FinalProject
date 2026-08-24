@@ -18,3 +18,5 @@ class UserModel(Base):
     club_memberships    = relationship("ClubMemberModel", back_populates= "user")
     assigned_activities = relationship("ClubActivityModel", back_populates= "assignee")
     club_logs           = relationship("ClubLogModel", back_populates= "actor")
+    activity_comments   = relationship("ClubActivityCommentModel", back_populates= "author")
+    activity_attachments = relationship("ClubActivityAttachmentModel", back_populates= "uploader")

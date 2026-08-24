@@ -1,30 +1,49 @@
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
+"""
+TIẾT 4: HOẠT ĐỘNG CÂU LẠC BỘ
+Schema cho các thao tác CRUD hoạt động, workflow status/priority (mục 40),
+và danh sách có phân trang/sort (mục 42).
+"""
+from pydantic import BaseModel, ConfigDict, Field
+from typing import List, Literal, Optional
 from datetime import datetime
 
-class ClubActivityBase(BaseModel):
-    club_id                     : int
-    title                       : str
-    description                 : Optional[str] = None
-    assignee_id                 : int
-    status                      : str
-    priority                    : str
-    due_date                    : Optional[datetime] = None
+ActivityStatus = Literal["TODO", "IN_PROGRESS", "DONE"]
+ActivityPriority = Literal["LOW", "MEDIUM", "HIGH"]
 
-class ClubActivityCreate(ClubActivityBase):
-    pass
+
+class ClubActivityCreate(BaseModel):
+    title           : str = Field(..., min_length= 1, max_length= 255)
+    description     : Optional[str] = None
+    assignee_id     : int = Field(..., gt= 0)
+    priority        : ActivityPriority = "MEDIUM"
+    due_date        : Optional[datetime] = None
+
 
 class ClubActivityUpdate(BaseModel):
-    club_id                     : Optional[int] = None
-    title                       : Optional[str] = None
-    description                 : Optional[str] = None
-    assignee_id                 : Optional[int] = None
-    status                      : Optional[str] = None
-    priority                    : Optional[str] = None
-    due_date                    : Optional[datetime] = None
+    title           : Optional[str] = Field(None, min_length= 1, max_length= 255)
+    description     : Optional[str] = None
+    assignee_id     : Optional[int] = Field(None, gt= 0)
+    status          : Optional[ActivityStatus] = None
+    priority        : Optional[ActivityPriority] = None
+    due_date        : Optional[datetime] = None
 
-class ClubActivityResponse(ClubActivityBase):
-    club_activities_id          : int
-    created_at                  : datetime
+
+class ClubActivityResponse(BaseModel):
+    club_activities_id : int
+    club_id             : int
+    title               : str
+    description         : Optional[str] = None
+    assignee_id         : int
+    status              : str
+    priority             : str
+    due_date              : Optional[datetime] = None
+    created_at             : datetime
 
     model_config = ConfigDict(from_attributes= True)
+
+
+class ClubActivityListResponse(BaseModel):
+    items       : List[ClubActivityResponse]
+    total       : int
+    page        : int
+    size        : int
