@@ -1,67 +1,76 @@
-from fastapi import Header, Depends
+import jwt
+from fastapi import (
+    Depends, 
+    HTTPException, 
+    status
+)
+from fastapi.security import (
+    HTTPAuthorizationCredentials, 
+    HTTPBearer
+)
 from sqlalchemy.orm import Session
-
+from config.setting import (
+    SECRET_KEY, 
+    JWT_ALGORITHM
+)
 from database.database import get_db
 from models.users import UserModel
-from utils.jwt import verify_token
-from exceptions.custom import (
-    UnauthorizedException,
-    ForbiddenException
-)
+from exceptions.custom import ForbiddenException
 
+bearer_scheme = HTTPBearer(auto_error=False)
 
 def get_current_user(
-    authorization: str | None = Header(
-        default=None,
-        alias="Authorization"
-    ),
+    credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
     db: Session = Depends(get_db)
 ):
-    if not authorization:
-        raise UnauthorizedException(
-            "Authorization header is required"
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token"
         )
 
-    parts = authorization.split(" ", 1)
+    token = credentials.credentials
 
-    if len(parts) != 2 or parts[0].lower() != "bearer":
-        raise UnauthorizedException(
-            "Invalid authorization header"
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired"
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token"
         )
 
-    token = parts[1].strip()
-
-    if not token:
-        raise UnauthorizedException(
-            "Token is required"
+    user_id = payload.get("sub")
+    if user_id is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is missing subject"
         )
 
     try:
-        payload = verify_token(token)
-    except Exception:
-        raise UnauthorizedException(
-            "Invalid or expired token"
+        user_id = int(user_id)
+    except (TypeError, ValueError):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid subject"
         )
 
-    user_id = payload.get("user_id")
+    user = db.query(UserModel).filter(UserModel.id == user_id).first()
 
-    if not user_id:
-        raise UnauthorizedException(
-            "Invalid token"
-        )
-
-    user = db.query(UserModel).filter(
-        UserModel.user_id == user_id
-    ).first()
-
-    if not user:
-        raise UnauthorizedException(
-            "User not found"
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
         )
 
     if not user.is_active:
-        raise ForbiddenException(
-            "User account is inactive"
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is inactive"
         )
 
     return user
