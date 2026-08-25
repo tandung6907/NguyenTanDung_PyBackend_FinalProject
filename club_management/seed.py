@@ -5,6 +5,8 @@ from models.clubs import ClubModel
 from models.club_members import ClubMemberModel
 from models.club_activities import ClubActivityModel
 from models.club_logs import ClubLogModel
+from models.club_activity_comments import ClubActivityCommentModel
+from models.club_activity_attachments import ClubActivityAttachmentModel
 
 from utils.security import hash_password
 
@@ -49,7 +51,6 @@ def seed_users(db):
                 role=data["role"],
                 is_active=data["is_active"]
             )
-
             db.add(user)
             db.flush()
 
@@ -83,8 +84,7 @@ def seed_clubs(db, users):
         owner = users[data["owner_email"]]
 
         club = db.query(ClubModel).filter(
-            ClubModel.name == data["name"],
-            ClubModel.is_deleted == False
+            ClubModel.name == data["name"]
         ).first()
 
         if not club:
@@ -92,34 +92,23 @@ def seed_clubs(db, users):
                 name=data["name"],
                 description=data["description"],
                 owner_id=owner.user_id,
-                is_deleted=False,
-                deleted_at=None
+                is_deleted=False
             )
-
             db.add(club)
             db.flush()
 
         clubs[data["name"]] = club
 
-        membership = db.query(ClubMemberModel).filter(
-            ClubMemberModel.club_id == club.club_id,
-            ClubMemberModel.user_id == owner.user_id
-        ).first()
-
-        if not membership:
-            membership = ClubMemberModel(
-                club_id=club.club_id,
-                user_id=owner.user_id,
-                role="OWNER"
-            )
-
-            db.add(membership)
-
     return clubs
 
 
-def seed_club_members(db, users, clubs):
-    members_data = [
+def seed_members(db, users, clubs):
+    memberships_data = [
+        {
+            "club_name": "IT Club",
+            "email": "admin@gmail.com",
+            "role": "OWNER"
+        },
         {
             "club_name": "IT Club",
             "email": "teacher@gmail.com",
@@ -130,10 +119,22 @@ def seed_club_members(db, users, clubs):
             "email": "student@gmail.com",
             "role": "MEMBER"
         },
+
+        {
+            "club_name": "English Club",
+            "email": "teacher@gmail.com",
+            "role": "OWNER"
+        },
         {
             "club_name": "English Club",
             "email": "student@gmail.com",
             "role": "MEMBER"
+        },
+
+        {
+            "club_name": "Football Club",
+            "email": "student@gmail.com",
+            "role": "OWNER"
         },
         {
             "club_name": "Football Club",
@@ -142,26 +143,25 @@ def seed_club_members(db, users, clubs):
         }
     ]
 
-    for data in members_data:
+    for data in memberships_data:
         club = clubs[data["club_name"]]
         user = users[data["email"]]
 
-        existed = db.query(ClubMemberModel).filter(
+        membership = db.query(ClubMemberModel).filter(
             ClubMemberModel.club_id == club.club_id,
             ClubMemberModel.user_id == user.user_id
         ).first()
 
-        if not existed:
+        if not membership:
             membership = ClubMemberModel(
                 club_id=club.club_id,
                 user_id=user.user_id,
                 role=data["role"]
             )
-
             db.add(membership)
 
 
-def seed_club_activities(db, users, clubs):
+def seed_activities(db, users, clubs):
     activities_data = [
         {
             "club_name": "IT Club",
@@ -189,16 +189,18 @@ def seed_club_activities(db, users, clubs):
         }
     ]
 
+    activities = {}
+
     for data in activities_data:
         club = clubs[data["club_name"]]
         assignee = users[data["assignee_email"]]
 
-        existed = db.query(ClubActivityModel).filter(
+        activity = db.query(ClubActivityModel).filter(
             ClubActivityModel.club_id == club.club_id,
             ClubActivityModel.title == data["title"]
         ).first()
 
-        if not existed:
+        if not activity:
             activity = ClubActivityModel(
                 club_id=club.club_id,
                 title=data["title"],
@@ -207,8 +209,94 @@ def seed_club_activities(db, users, clubs):
                 status=data["status"],
                 priority=data["priority"]
             )
-
             db.add(activity)
+            db.flush()
+
+        activities[data["title"]] = activity
+
+    return activities
+
+
+def seed_logs(db, users, clubs, activities):
+    logs_data = [
+        {
+            "club_name": "IT Club",
+            "actor_email": "admin@gmail.com",
+            "action": "CREATE_CLUB",
+            "detail": "Created club 'IT Club'"
+        },
+        {
+            "club_name": "IT Club",
+            "actor_email": "admin@gmail.com",
+            "action": "ADD_MEMBER",
+            "detail": "Added teacher and student to IT Club"
+        },
+        {
+            "club_name": "IT Club",
+            "actor_email": "admin@gmail.com",
+            "action": "CREATE_ACTIVITY",
+            "detail": "Created activity 'Tổ chức workshop Python'"
+        },
+        {
+            "club_name": "English Club",
+            "actor_email": "teacher@gmail.com",
+            "action": "CREATE_ACTIVITY",
+            "detail": "Created activity 'English Speaking'"
+        }
+    ]
+
+    for data in logs_data:
+        club = clubs[data["club_name"]]
+        actor = users[data["actor_email"]]
+
+        existed = db.query(ClubLogModel).filter(
+            ClubLogModel.club_id == club.club_id,
+            ClubLogModel.actor_id == actor.user_id,
+            ClubLogModel.action == data["action"],
+            ClubLogModel.detail == data["detail"]
+        ).first()
+
+        if not existed:
+            log = ClubLogModel(
+                club_id=club.club_id,
+                actor_id=actor.user_id,
+                action=data["action"],
+                detail=data["detail"]
+            )
+            db.add(log)
+
+
+def seed_comments(db, users, activities):
+    comments_data = [
+        {
+            "activity_title": "Tổ chức workshop Python",
+            "author_email": "teacher@gmail.com",
+            "content": "Nhớ chuẩn bị slide trước buổi workshop."
+        },
+        {
+            "activity_title": "English Speaking",
+            "author_email": "student@gmail.com",
+            "content": "Đã hoàn thành phần chuẩn bị nội dung."
+        }
+    ]
+
+    for data in comments_data:
+        activity = activities[data["activity_title"]]
+        author = users[data["author_email"]]
+
+        existed = db.query(ClubActivityCommentModel).filter(
+            ClubActivityCommentModel.club_activities_id == activity.club_activities_id,
+            ClubActivityCommentModel.author_id == author.user_id,
+            ClubActivityCommentModel.content == data["content"]
+        ).first()
+
+        if not existed:
+            comment = ClubActivityCommentModel(
+                club_activities_id=activity.club_activities_id,
+                author_id=author.user_id,
+                content=data["content"]
+            )
+            db.add(comment)
 
 
 def seed():
@@ -217,8 +305,27 @@ def seed():
     try:
         users = seed_users(db)
         clubs = seed_clubs(db, users)
-        seed_club_members(db, users, clubs)
-        seed_club_activities(db, users, clubs)
+
+        seed_members(db, users, clubs)
+
+        activities = seed_activities(
+            db,
+            users,
+            clubs
+        )
+
+        seed_logs(
+            db,
+            users,
+            clubs,
+            activities
+        )
+
+        seed_comments(
+            db,
+            users,
+            activities
+        )
 
         db.commit()
 
@@ -227,6 +334,7 @@ def seed():
     except Exception as e:
         db.rollback()
         print(f"Seed failed: {e}")
+        raise
 
     finally:
         db.close()

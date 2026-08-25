@@ -12,6 +12,8 @@ from models.club_activities import ClubActivityModel
 from models.club_logs import ClubLogModel
 from models.club_members import ClubMemberModel
 from models.clubs import ClubModel
+from models.club_activity_attachments import ClubActivityAttachmentModel
+from models.club_activity_comments import ClubActivityCommentModel
 
 from config.setting import DB_URL
 

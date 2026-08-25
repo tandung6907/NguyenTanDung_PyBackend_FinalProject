@@ -29,15 +29,15 @@ class ClubActivityUpdate(BaseModel):
 
 
 class ClubActivityResponse(BaseModel):
-    club_activities_id : int
+    club_activities_id  : int
     club_id             : int
     title               : str
     description         : Optional[str] = None
     assignee_id         : int
     status              : str
-    priority             : str
-    due_date              : Optional[datetime] = None
-    created_at             : datetime
+    priority            : str
+    due_date            : Optional[datetime] = None
+    created_at          : datetime
 
     model_config = ConfigDict(from_attributes= True)
 

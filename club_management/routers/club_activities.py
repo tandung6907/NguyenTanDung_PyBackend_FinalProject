@@ -67,7 +67,7 @@ def list_activities_api(
     status: Optional[str] = Query(None, description= "TODO | IN_PROGRESS | DONE"),
     priority: Optional[str] = Query(None, description= "LOW | MEDIUM | HIGH"),
     assignee_id: Optional[int] = None,
-    search: Optional[str] = Query(None, description= "Search theo title"),
+    search: Optional[str] = Query(None, description= "Search by title"),
     page: int = Query(1, ge= 1),
     size: int = Query(10, ge= 1, le= 100),
     sort_by: str = Query("created_at", description= "created_at | due_date"),

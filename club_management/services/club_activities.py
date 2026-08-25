@@ -147,7 +147,7 @@ def list_activities(
     if search:
         query = query.filter(ClubActivityModel.title.like(f"%{search}%"))
 
-    total = query.count()
+    total_activities = query.count()
 
     sort_column = SORTABLE_FIELDS.get(sort_by, ClubActivityModel.created_at)
     query = query.order_by(desc(sort_column) if order == "desc" else asc(sort_column))
@@ -158,10 +158,10 @@ def list_activities(
     items = query.offset((page - 1) * size).limit(size).all()
 
     return {
-        "items" : items,
-        "total" : total,
-        "page"  : page,
-        "size"  : size
+        "items"             : items,
+        "total_activities"  : total_activities,
+        "page"              : page,
+        "size"              : size
     }
 
 
