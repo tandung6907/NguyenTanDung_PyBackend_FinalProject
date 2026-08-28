@@ -87,7 +87,7 @@ def create_activity(
     _get_club_or_404(db, club_id)
     _require_member(db, club_id, current_user)
     _validate_assignee_is_member(db, club_id, data.assignee_id)
-
+    
     activity = ClubActivityModel(
         club_id= club_id,
         title= data.title,

@@ -10,9 +10,9 @@ class ClubActivityModel(Base):
     club_id                     = Column(Integer, ForeignKey("clubs.club_id"), nullable= False)
     title                       = Column(String(255), nullable= False)
     description                 = Column(Text, default= None)
-    assignee_id                 = Column(Integer, ForeignKey("users.user_id"), nullable= False)
+    assignee_id                 = Column(Integer, ForeignKey("users.user_id"), default= None)
     status                      = Column(Enum("TODO", "IN_PROGRESS", "DONE"), nullable= False)
-    priority                    = Column(Enum("LOW", "MEDIUM", "HIGH"), nullable= False)
+    priority                    = Column(Enum("LOW", "MEDIUM", "HIGH", "URGENT"), nullable= False)
     due_date                    = Column(DateTime, default= None)
     created_at                  = Column(DateTime, default= datetime.now, nullable= False)
 

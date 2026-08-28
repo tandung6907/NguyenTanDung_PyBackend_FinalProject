@@ -1,9 +1,20 @@
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 from typing import Optional
 from datetime import datetime
 
 class UserBase(BaseModel):
     email           : EmailStr
+    # Chuẩn hóa email thành chữ thường và loại bỏ khoảng trắng trước khi lưu vào database.
+    @field_validator("email")
+    @classmethod
+    def validation(cls, value):
+        value.lower().strip()
+
+        if not value:
+            raise ValueError("Email cannot be empty")
+
+        return value
+
     full_name       : str = Field(min_length= 2)
 
 
