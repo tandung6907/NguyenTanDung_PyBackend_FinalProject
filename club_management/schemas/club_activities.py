@@ -14,7 +14,7 @@ ActivityPriority = Literal["LOW", "MEDIUM", "HIGH"]
 class ClubActivityCreate(BaseModel):
     title           : str = Field(..., min_length= 1, max_length= 255)
     description     : Optional[str] = None
-    assignee_id     : int = Field(..., gt= 0)
+    assignee_id     : Optional[int] = Field(None, gt= 0)
     priority        : ActivityPriority = "MEDIUM"
     due_date        : Optional[datetime] = None
 
