@@ -86,13 +86,18 @@ def create_activity(
 ):
     _get_club_or_404(db, club_id)
     _require_member(db, club_id, current_user)
-    _validate_assignee_is_member(db, club_id, data.assignee_id)
+
+    assignee_id = data.assignee_id
+    if assignee_id is None:
+        assignee_id = current_user.user_id
+    else:
+        _validate_assignee_is_member(db, club_id, data.assignee_id)
     
     activity = ClubActivityModel(
         club_id= club_id,
         title= data.title,
         description= data.description,
-        assignee_id= data.assignee_id,
+        assignee_id= assignee_id,
         status= "TODO",
         priority= data.priority,
         due_date= data.due_date
